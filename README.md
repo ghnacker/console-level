@@ -1,1 +1,3 @@
-# console-loglevel
+# console-level
+
+Simple logLevel extension for console
