@@ -75,22 +75,22 @@ export class ConsoleLevel {
   constructor(logger: any = console) {
     for (const method in methodLevel) {
       if (typeof logger[method] === 'function') {
-	this[method] = (...arg: any[]) => {
-	  if (this.levelnum <= methodLevel[method]) {
-	    logger[method](...arg);
-	  }
-	};
+        this[method] = (...arg: any[]) => {
+          if (this.enabled && this.levelnum <= methodLevel[method]) {
+            logger[method](...arg);
+          }
+        };
       } else {
-	this[method] = () => {};
+        this[method] = () => {};
       }
     }
     for (const method in logger) {
       if (!this[method] && typeof logger[method] === 'function') {
-	this[method] = (...arg: any[]) => {
-	  if (this.levelnum <= 0) {
-	    logger[method](...arg);
-	  }
-	};
+        this[method] = (...arg: any[]) => {
+          if (this.enabled && this.levelnum < logLevel['silent']) {
+            logger[method](...arg);
+          }
+        };
       }
     }
   }
