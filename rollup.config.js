@@ -3,7 +3,11 @@ import { terser } from 'rollup-plugin-terser';
 
 const plugins = [
   typescript(),
-  terser(),
+  terser({
+    output: {
+      comments: /^!/
+    }
+  }),
 ];
 
 export default [
