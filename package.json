@@ -7,6 +7,7 @@
   "types": "./esm/index.d.ts",
   "scripts": {
     "build": "rollup -c",
+    "prepack": "npm run build",
     "clean": "rimraf cjs esm umd",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
