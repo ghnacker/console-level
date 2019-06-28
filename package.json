@@ -9,6 +9,7 @@
     "build": "rollup -c",
     "prepack": "npm run build",
     "clean": "rimraf cjs esm umd",
+    "lint": "tslint -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -29,6 +30,7 @@
     "rollup": "^1.16.2",
     "rollup-plugin-terser": "^5.0.0",
     "rollup-plugin-typescript2": "^0.21.2",
+    "tslint": "^5.18.0",
     "typescript": "^3.5.2"
   },
   "dependencies": {}
