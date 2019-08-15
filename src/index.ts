@@ -52,6 +52,7 @@ Object.keys(grouping).forEach((k, i) => {
 for (const k in aliases) {
   logLevel[k] = logLevel[k.toUpperCase()] = logLevel[aliases[k]];
 }
+const nop = () => {};
 
 export class ConsoleLevel {
 
@@ -81,7 +82,7 @@ export class ConsoleLevel {
           }
         };
       } else {
-        this[method] = () => {};
+        this[method] = nop;
       }
     }
     for (const method in logger) {
