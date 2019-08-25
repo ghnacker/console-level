@@ -27,10 +27,10 @@
   "license": "MIT",
   "devDependencies": {
     "rimraf": "^3.0.0",
-    "rollup": "^1.19.4",
+    "rollup": "^1.20.2",
     "rollup-plugin-terser": "^5.1.1",
-    "rollup-plugin-typescript2": "^0.22.1",
-    "tslint": "^5.18.0",
+    "rollup-plugin-typescript2": "^0.23.0",
+    "tslint": "^5.19.0",
     "typescript": "^3.5.3"
   },
   "dependencies": {}
