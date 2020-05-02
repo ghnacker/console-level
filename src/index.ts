@@ -52,6 +52,11 @@ Object.keys(grouping).forEach((k, i) => {
 for (const k in aliases) {
   logLevel[k] = logLevel[k.toUpperCase()] = logLevel[aliases[k]];
 }
+
+const levelNum = (level: string | number): number => {
+  return typeof level === 'number' ? level : logLevel[level] || 0;
+}
+
 const nop = () => {};
 
 export class ConsoleLevel {
@@ -60,16 +65,18 @@ export class ConsoleLevel {
   static readonly aliases = aliases;
   static readonly logLevel = logLevel;
   static readonly methodLevel = methodLevel;
+  static readonly levelNum = levelNum;
 
   level: string | number = 'log';
-  get levelnum(): number {
-    const level = this.level;
-    return typeof level === 'number' ? level : logLevel[level] || 0;
-  }
+  get levelnum(): number { return levelNum(this.level); }
 
   enabled: boolean = true;
   get disabled() { return !this.enabled; }
   set disabled(d: boolean) { this.enabled = !d; }
+
+  in(level: string | number): boolean {
+    return this.enabled && this.levelnum <= levelNum(level);
+  }
 
   [method: string]: any;
 
