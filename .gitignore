@@ -60,6 +60,3 @@ typings/
 # next.js build output
 .next
 
-# rollup-plugin-typescript2
-.rpt2_cache
-

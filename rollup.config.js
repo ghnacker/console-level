@@ -1,29 +1,35 @@
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 
+const terserp = terser({ output: { comments: /^!/ } });
 const plugins = [
   typescript(),
-  terser({
-    output: {
-      comments: /^!/
-    }
-  }),
+  terserp,
 ];
 
 export default [
   {
     input: 'src/index.ts',
-    output: [
-      {
-	      file: 'cjs/index.js',
-	      format: 'cjs',
-      },
-      {
-	      file: 'esm/index.js',
-	      format: 'esm',
-      },
+    output: {
+	    dir: 'esm',
+	    format: 'esm',
+    },
+    plugins: [
+      typescript({
+        declaration: true,
+        declarationDir: 'esm',
+        rootDir: 'src'
+      }),
+      terserp,
     ],
-    plugins
+  },
+  {
+    input: 'src/index.ts',
+    output: {
+	    file: 'cjs/index.js',
+	    format: 'cjs',
+    },
+    plugins,
   },
   {
     input: 'src/default.ts',
@@ -32,6 +38,6 @@ export default [
       format: 'umd',
       name: 'ConsoleLevel'
     },
-    plugins
+    plugins,
   },
 ];
