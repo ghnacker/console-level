@@ -32,7 +32,7 @@ export default [
     plugins,
   },
   {
-    input: 'src/default.ts',
+    input: 'src/default.js',
     output: {
       file: 'umd/index.js',
       format: 'umd',
