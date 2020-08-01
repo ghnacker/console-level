@@ -57,6 +57,7 @@ table.reduce(([ n, s, m ], [ level, methods ], num: number) => {
   methods.forEach(method => m[method] = num);
   return [ n, s, m ];
 }, [ levelNumMap, levelStrMap, methodLevel ]);
+const allmethods = [ ...Object.keys(methodLevel), ...nostd ];
 for (const k in aliases) {
   const n = levelNumMap;
   const s = levelStrMap;
@@ -74,18 +75,45 @@ const levelStr = (level: string | number) => {
 
 const nop = () => {};
 
+interface ConsoleLevelOptions {
+  level?: string | number;
+  enabled?: boolean;
+  dynamic?: boolean;
+}
+
 export class ConsoleLevel implements Console {
   static readonly levelNumMap = levelNumMap;
   static readonly levelStrMap = levelStrMap;
   static readonly methodLevel = methodLevel;
 
-  level: string | number = 'log';
+  private out: any;
+  private opt: ConsoleLevelOptions;
+
+  get disabled() { return !this.enabled; }
+  set disabled(t: boolean) { this.enabled = !t; }
+  get enabled() { return !!this.opt.enabled; }
+  set enabled(t: boolean) {
+    if (this.enabled === !!t) return;
+    this.opt.enabled = !!t;
+    if (!this.dynamic) this.init();
+  }
+  get dynamic() { return !!this.opt.dynamic; }
+  set dynamic(t: boolean) {
+    if (this.dynamic === !!t) return;
+    this.opt.dynamic = !!t;
+    this.init();
+  }
   get levelNum() { return levelNum(this.level); }
   get levelStr() { return levelStr(this.level); }
-
-  enabled: boolean = true;
-  get disabled() { return !this.enabled; }
-  set disabled(d: boolean) { this.enabled = !d; }
+  get level() { return this.opt.level ?? 'log'; }
+  set level(l: string | number) {
+    if (this.levelNum === levelNum(l)) {
+      this.opt.level = l;
+      return;
+    }
+    this.opt.level = l;
+    if (!this.dynamic) this.init();
+  }
 
   in(level: string | number): boolean {
     return this.enabled && this.levelNum <= levelNum(level);
@@ -115,38 +143,38 @@ export class ConsoleLevel implements Console {
   memory: Console['memory'] = nop;
   timeStamp: Console['timeStamp'] = nop;
 
-  private out: any;
-
-  private bindIt(method: string) {
-    const fn = this.out[method];
-    if (typeof fn === 'function') {
-      (this as any)[method] = fn.bind(this.out);
+  constructor(cons: Console = console, opt?: ConsoleLevelOptions) {
+    this.out = cons;
+    this.opt = { enabled: true, level: 'log', dynamic: false, ...opt };
+    this.init();
+    for (const method in this.out) {
+      if ((this as any)[method]) continue;
+      // unknown method
+      const fn = this.out[method];
+      if (typeof fn === 'function') {
+        (this as any)[method] = (...arg: any[]) => {
+          if (this.enabled) {
+            this.out[method](...arg);
+          }
+        };
+      }
     }
   }
 
-  constructor(cons: Console = console) {
-    this.out = cons;
-    for (const method in nostd) {
-      this.bindIt(method);
-    }
-    for (const method in methodLevel) {
-      if (typeof this.out[method] === 'function') {
+  private init() {
+    for (const method of allmethods) {
+      if (this.dynamic) {
         (this as any)[method] = (...arg: any[]) => {
-          if (this.enabled && this.levelNum <= methodLevel[method]) {
-            this.out[method](...arg);
+          if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumMap.error)) {
+            const fn = this.out[method];
+            if (typeof fn === 'function') fn(...arg);
           }
         };
+      } else if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumMap.error)) {
+        const fn = this.out[method];
+        (this as any)[method] = typeof fn === 'function' ? fn.bind(this.out) : nop;
       } else {
         (this as any)[method] = nop;
-      }
-    }
-    for (const method in this.out) {
-      if (!(this as any)[method] && typeof this.out[method] === 'function') {
-        (this as any)[method] = (...arg: any[]) => {
-          if (this.enabled && this.levelNum < levelNumMap.silent) {
-            this.out[method](...arg);
-          }
-        };
       }
     }
   }
