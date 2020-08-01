@@ -1,10 +1,12 @@
 /*!
  * console-level
- * Copyright (c) 2019 Satoshi Nakagawa
+ * Copyright (c) 2019, 2020 Satoshi Nakagawa
  */
 
-const grouping: { [level: string]: string[] } = {
-  log: [
+// [ level: string, methods: string[] ][]
+const table: [string, string[]][] = [
+  [ 'all', [] ],
+  [ 'log', [
     'debug',
     'dir',
     'dirxml',
@@ -16,66 +18,72 @@ const grouping: { [level: string]: string[] } = {
     'time',
     'timeLog',
     'trace',
-  ],
-  info: [
+  ]],
+  [ 'info', [
     'count',
     'info',
     'timeEnd',
-  ],
-  warn: [
+  ]],
+  [ 'warn', [
     'countReset',
     'warn',
-  ],
-  error: [
+  ]],
+  [ 'error', [
     'assert',
     'clear',
     'error',
-  ],
-  silent: []
-};
-
+  ]],
+  [ 'silent', [] ]
+];
 const aliases: { [level: string]: string } = {
   debug: 'log',
   fatal: 'error',
   quiet: 'silent',
 };
 
-const logLevel: any = {};
-const methodLevel: { [method: string]: number } = {};
-Object.keys(grouping).forEach((k, i) => {
-  logLevel[i] = k;
-  logLevel[k] = logLevel[k.toUpperCase()] = i;
-  grouping[k].forEach(m => {
-    methodLevel[m] = i;
-  });
-});
+type LevelNumberMap = { [key: string]: number };
+type LevelStringMap = { [key: string]: string };
+const levelNumMap: LevelNumberMap = {};
+const levelStrMap: LevelStringMap = {};
+const methodLevel: LevelNumberMap = {};
+table.reduce(([ n, s, m ], [ level, methods ], num: number) => {
+  n[level] = n[level.toUpperCase()] = n[num] = num;
+  s[level] = s[level.toUpperCase()] = s[num] = level;
+  methods.forEach(method => m[method] = num);
+  return [ n, s, m ];
+}, [ levelNumMap, levelStrMap, methodLevel ]);
 for (const k in aliases) {
-  logLevel[k] = logLevel[k.toUpperCase()] = logLevel[aliases[k]];
+  const n = levelNumMap;
+  const s = levelStrMap;
+  const a = aliases[k];
+  const u = k.toUpperCase();
+  n[k] = n[u] = n[a];
+  s[k] = s[u] = s[a];
 }
-
-const levelNum = (level: string | number): number => {
-  return typeof level === 'number' ? level : logLevel[level] || 0;
+const levelNum = (level: string | number) => {
+  return levelNumMap[level] ?? levelNumMap.log;
+}
+const levelStr = (level: string | number) => {
+  return levelStrMap[level] ?? levelStrMap.log;
 }
 
 const nop = () => {};
 
 export class ConsoleLevel {
-
-  static readonly grouping = grouping;
-  static readonly aliases = aliases;
-  static readonly logLevel = logLevel;
+  static readonly levelNumMap = levelNumMap;
+  static readonly levelStrMap = levelStrMap;
   static readonly methodLevel = methodLevel;
-  static readonly levelNum = levelNum;
 
   level: string | number = 'log';
-  get levelnum(): number { return levelNum(this.level); }
+  get levelNum() { return levelNum(this.level); }
+  get levelStr() { return levelStr(this.level); }
 
   enabled: boolean = true;
   get disabled() { return !this.enabled; }
   set disabled(d: boolean) { this.enabled = !d; }
 
   in(level: string | number): boolean {
-    return this.enabled && this.levelnum <= levelNum(level);
+    return this.enabled && this.levelNum <= levelNum(level);
   }
 
   [method: string]: any;
@@ -84,7 +92,7 @@ export class ConsoleLevel {
     for (const method in methodLevel) {
       if (typeof logger[method] === 'function') {
         this[method] = (...arg: any[]) => {
-          if (this.enabled && this.levelnum <= methodLevel[method]) {
+          if (this.enabled && this.levelNum <= methodLevel[method]) {
             logger[method](...arg);
           }
         };
@@ -95,7 +103,7 @@ export class ConsoleLevel {
     for (const method in logger) {
       if (!this[method] && typeof logger[method] === 'function') {
         this[method] = (...arg: any[]) => {
-          if (this.enabled && this.levelnum < logLevel['silent']) {
+          if (this.enabled && this.levelNum < levelNumMap.silent) {
             logger[method](...arg);
           }
         };
