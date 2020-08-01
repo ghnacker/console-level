@@ -9,10 +9,5 @@ node_modules/
 # Output of 'npm pack'
 *.tgz
 
-# artifacts
-cjs/
-esm/
-umd/
-
 # ...
 *~

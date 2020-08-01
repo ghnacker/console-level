@@ -127,7 +127,7 @@ export class ConsoleLevel implements Console {
   constructor(cons: Console = console) {
     this.out = cons;
     for (const method in nostd) {
-      this.bindIt('method');
+      this.bindIt(method);
     }
     for (const method in methodLevel) {
       if (typeof this.out[method] === 'function') {
