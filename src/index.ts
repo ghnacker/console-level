@@ -35,6 +35,11 @@ const table: [string, string[]][] = [
   ]],
   [ 'silent', [] ]
 ];
+const nostd = [
+  'exception',
+  'memory',
+  'timeStamp',
+];
 const aliases: { [level: string]: string } = {
   debug: 'log',
   fatal: 'error',
@@ -69,7 +74,7 @@ const levelStr = (level: string | number) => {
 
 const nop = () => {};
 
-export class ConsoleLevel {
+export class ConsoleLevel implements Console {
   static readonly levelNumMap = levelNumMap;
   static readonly levelStrMap = levelStrMap;
   static readonly methodLevel = methodLevel;
@@ -86,30 +91,68 @@ export class ConsoleLevel {
     return this.enabled && this.levelNum <= levelNum(level);
   }
 
-  [method: string]: any;
+  assert: Console['assert'] = nop;
+  clear: Console['clear'] = nop;
+  count: Console['count'] = nop;
+  countReset: Console['countReset'] = nop;
+  debug: Console['debug'] = nop;
+  dir: Console['dir'] = nop;
+  dirxml: Console['dirxml'] = nop;
+  error: Console['error'] = nop;
+  group: Console['group'] = nop;
+  groupCollapsed: Console['groupCollapsed'] = nop;
+  groupEnd: Console['groupEnd'] = nop;
+  info: Console['info'] = nop;
+  log: Console['log'] = nop;
+  table: Console['table'] = nop;
+  time: Console['time'] = nop;
+  timeEnd: Console['timeEnd'] = nop;
+  timeLog: Console['timeLog'] = nop;
+  trace: Console['trace'] = nop;
+  warn: Console['warn'] = nop;
 
-  constructor(logger: any = console) {
+  exception: Console['exception'] = nop;
+  memory: Console['memory'] = nop;
+  timeStamp: Console['timeStamp'] = nop;
+
+  private out: any;
+
+  private bindIt(method: string) {
+    const fn = this.out[method];
+    if (typeof fn === 'function') {
+      (this as any)[method] = fn.bind(this.out);
+    }
+  }
+
+  constructor(cons: Console = console) {
+    this.out = cons;
+    for (const method in nostd) {
+      this.bindIt('method');
+    }
     for (const method in methodLevel) {
-      if (typeof logger[method] === 'function') {
-        this[method] = (...arg: any[]) => {
+      if (typeof this.out[method] === 'function') {
+        (this as any)[method] = (...arg: any[]) => {
           if (this.enabled && this.levelNum <= methodLevel[method]) {
-            logger[method](...arg);
+            this.out[method](...arg);
           }
         };
       } else {
-        this[method] = nop;
+        (this as any)[method] = nop;
       }
     }
-    for (const method in logger) {
-      if (!this[method] && typeof logger[method] === 'function') {
-        this[method] = (...arg: any[]) => {
+    for (const method in this.out) {
+      if (!(this as any)[method] && typeof this.out[method] === 'function') {
+        (this as any)[method] = (...arg: any[]) => {
           if (this.enabled && this.levelNum < levelNumMap.silent) {
-            logger[method](...arg);
+            this.out[method](...arg);
           }
         };
       }
     }
   }
 
-  static logger = new ConsoleLevel();
+  private static single?: ConsoleLevel;
+  static get logger() {
+    return ConsoleLevel.single || (ConsoleLevel.single = new ConsoleLevel());
+  }
 }
