@@ -4,21 +4,50 @@ Simple logLevel extension for JavaScript console
 
 ## Usage
 
+### Node.js
+
 ```JavaScript
 const { ConsoleLevel } = require('console-level');
+```
 
+### Typescript
+
+```JavaScript
+import { ConsoleLevel } from 'console-level';
+```
+
+### Browsers
+
+```html
+<script src="https://unpkg.com/console-level/umd"></script>
+```
+
+or
+
+```html
+<script type="module">
+  import { ConsoleLevel } from 'https://unpkg.com/console-level/esm';
+</script>
+```
+
+## Example
+
+```JavaScript
 const logger = new ConsoleLevel();
 
-logger.log('log 0');
-logger.info('info 0');
+logger.log("log in 'log'");
+logger.info("info in 'log'");
+
 logger.level = 'info';
-logger.log('log 1');
-logger.info('info 1');
+logger.log("log in 'info'");
+logger.info("info in 'info'");
+
 logger.enabled = false;
-logger.log('log 2');
-logger.info('info 2');
+logger.log("log in 'disabled'");
+logger.info("info in 'disabled'");
+
 // Outputs:
-// log 0
-// info 0
-// info 1
+// log in 'log'
+// info in 'log'
+// info in 'info'
 ```
