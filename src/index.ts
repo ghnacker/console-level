@@ -46,31 +46,31 @@ const aliases: { [level: string]: string } = {
   quiet: 'silent',
 };
 
-type LevelNumberMap = { [key: string]: number };
-type LevelStringMap = { [key: string]: string };
-const levelNumMap: LevelNumberMap = {};
-const levelStrMap: LevelStringMap = {};
-const methodLevel: LevelNumberMap = {};
+type LevelNumber = { [key: string]: number };
+type LevelString = { [key: string]: string };
+const levelNumber: LevelNumber = {};
+const levelString: LevelString = {};
+const methodLevel: LevelNumber = {};
 table.reduce(([ n, s, m ], [ level, methods ], num: number) => {
   n[level] = n[level.toUpperCase()] = n[num] = num;
   s[level] = s[level.toUpperCase()] = s[num] = level;
   methods.forEach(method => m[method] = num);
   return [ n, s, m ];
-}, [ levelNumMap, levelStrMap, methodLevel ]);
+}, [ levelNumber, levelString, methodLevel ]);
 const allmethods = [ ...Object.keys(methodLevel), ...nostd ];
 for (const k in aliases) {
-  const n = levelNumMap;
-  const s = levelStrMap;
+  const n = levelNumber;
+  const s = levelString;
   const a = aliases[k];
   const u = k.toUpperCase();
   n[k] = n[u] = n[a];
   s[k] = s[u] = s[a];
 }
 const levelNum = (level: string | number) => {
-  return levelNumMap[level] ?? levelNumMap.log;
+  return levelNumber[level] ?? levelNumber.log;
 }
 const levelStr = (level: string | number) => {
-  return levelStrMap[level] ?? levelStrMap.log;
+  return levelString[level] ?? levelString.log;
 }
 
 const nop = () => {};
@@ -82,36 +82,33 @@ interface ConsoleLevelOptions {
 }
 
 export class ConsoleLevel implements Console {
-  static readonly levelNumMap = levelNumMap;
-  static readonly levelStrMap = levelStrMap;
+  static readonly levelNumber = levelNumber;
+  static readonly levelString = levelString;
   static readonly methodLevel = methodLevel;
 
-  private out: any;
-  private opt: ConsoleLevelOptions;
-
   get disabled() { return !this.enabled; }
-  set disabled(t: boolean) { this.enabled = !t; }
+  set disabled(v: boolean) { this.enabled = !v; }
   get enabled() { return !!this.opt.enabled; }
-  set enabled(t: boolean) {
-    if (this.enabled === !!t) return;
-    this.opt.enabled = !!t;
+  set enabled(v: boolean) {
+    if (this.enabled === !!v) return;
+    this.opt.enabled = !!v;
     if (!this.dynamic) this.init();
   }
   get dynamic() { return !!this.opt.dynamic; }
-  set dynamic(t: boolean) {
-    if (this.dynamic === !!t) return;
-    this.opt.dynamic = !!t;
+  set dynamic(v: boolean) {
+    if (this.dynamic === !!v) return;
+    this.opt.dynamic = !!v;
     this.init();
   }
   get levelNum() { return levelNum(this.level); }
   get levelStr() { return levelStr(this.level); }
   get level() { return this.opt.level ?? 'log'; }
-  set level(l: string | number) {
-    if (this.levelNum === levelNum(l)) {
-      this.opt.level = l;
+  set level(v: string | number) {
+    if (this.levelNum === levelNum(v)) {
+      this.opt.level = v;
       return;
     }
-    this.opt.level = l;
+    this.opt.level = v;
     if (!this.dynamic) this.init();
   }
 
@@ -161,16 +158,19 @@ export class ConsoleLevel implements Console {
     }
   }
 
+  private out: any;
+  private opt: ConsoleLevelOptions;
+
   private init() {
     for (const method of allmethods) {
       if (this.dynamic) {
         (this as any)[method] = (...arg: any[]) => {
-          if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumMap.error)) {
+          if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
             const fn = this.out[method];
             if (typeof fn === 'function') fn(...arg);
           }
         };
-      } else if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumMap.error)) {
+      } else if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
         const fn = this.out[method];
         (this as any)[method] = typeof fn === 'function' ? fn.bind(this.out) : nop;
       } else {
