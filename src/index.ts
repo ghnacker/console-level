@@ -37,8 +37,8 @@ const table: [string, string[]][] = [
 ];
 const nostd = [
   'exception',
-  'memory',
   'timeStamp',
+  // 'memory',
 ];
 const aliases: { [level: string]: string } = {
   debug: 'log',
@@ -140,8 +140,8 @@ export class ConsoleLevel implements Console {
   warn: Console['warn'] = nop;
 
   exception: Console['exception'] = nop;
-  memory: Console['memory'] = nop;
   timeStamp: Console['timeStamp'] = nop;
+  get memory() { return this.out.memory; }
 
   constructor(cons: Console = console, opt?: ConsoleLevelOptions) {
     this.out = cons;
