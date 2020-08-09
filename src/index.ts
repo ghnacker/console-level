@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /*!
  * console-level
  * Copyright (c) 2019, 2020 Satoshi Nakagawa
@@ -36,9 +37,12 @@ const table: [string, string[]][] = [
   [ 'silent', [] ]
 ];
 const nostd = [
+  // 'memory',
   'exception',
   'timeStamp',
-  // 'memory',
+  //
+  'profile',
+  'profileEnd',
 ];
 const aliases: { [level: string]: string } = {
   debug: 'log',
@@ -81,10 +85,14 @@ interface ConsoleLevelOptions {
   dynamic?: boolean;
 }
 
-export class ConsoleLevel implements Console {
+type ConsoleType = Console;
+
+export class ConsoleLevel implements ConsoleType {
   static readonly levelNumber = levelNumber;
   static readonly levelString = levelString;
   static readonly methodLevel = methodLevel;
+
+  Console: any = console.Console || ConsoleLevel;
 
   get disabled() { return !this.enabled; }
   set disabled(v: boolean) { this.enabled = !v; }
@@ -116,31 +124,34 @@ export class ConsoleLevel implements Console {
     return this.enabled && this.levelNum <= levelNum(level);
   }
 
-  assert: Console['assert'] = nop;
-  clear: Console['clear'] = nop;
-  count: Console['count'] = nop;
-  countReset: Console['countReset'] = nop;
-  debug: Console['debug'] = nop;
-  dir: Console['dir'] = nop;
-  dirxml: Console['dirxml'] = nop;
-  error: Console['error'] = nop;
-  group: Console['group'] = nop;
-  groupCollapsed: Console['groupCollapsed'] = nop;
-  groupEnd: Console['groupEnd'] = nop;
-  info: Console['info'] = nop;
-  log: Console['log'] = nop;
-  table: Console['table'] = nop;
-  time: Console['time'] = nop;
-  timeEnd: Console['timeEnd'] = nop;
-  timeLog: Console['timeLog'] = nop;
-  trace: Console['trace'] = nop;
-  warn: Console['warn'] = nop;
+  assert: ConsoleType['assert'] = nop;
+  clear: ConsoleType['clear'] = nop;
+  count: ConsoleType['count'] = nop;
+  countReset: ConsoleType['countReset'] = nop;
+  debug: ConsoleType['debug'] = nop;
+  dir: ConsoleType['dir'] = nop;
+  dirxml: ConsoleType['dirxml'] = nop;
+  error: ConsoleType['error'] = nop;
+  group: ConsoleType['group'] = nop;
+  groupCollapsed: ConsoleType['groupCollapsed'] = nop;
+  groupEnd: ConsoleType['groupEnd'] = nop;
+  info: ConsoleType['info'] = nop;
+  log: ConsoleType['log'] = nop;
+  table: ConsoleType['table'] = nop;
+  time: ConsoleType['time'] = nop;
+  timeEnd: ConsoleType['timeEnd'] = nop;
+  timeLog: ConsoleType['timeLog'] = nop;
+  trace: ConsoleType['trace'] = nop;
+  warn: ConsoleType['warn'] = nop;
 
-  exception: Console['exception'] = nop;
-  timeStamp: Console['timeStamp'] = nop;
   get memory() { return this.out.memory; }
+  exception: ConsoleType['exception'] = nop;
+  timeStamp: ConsoleType['timeStamp'] = nop;
 
-  constructor(cons: Console = console, opt?: ConsoleLevelOptions) {
+  profile: ConsoleType['profile'] = nop;
+  profileEnd: ConsoleType['profileEnd'] = nop;
+
+  constructor(cons: ConsoleType = console, opt?: ConsoleLevelOptions) {
     this.out = cons;
     this.opt = { enabled: true, level: 'log', dynamic: false, ...opt };
     this.init();
