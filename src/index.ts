@@ -5,7 +5,7 @@
  */
 
 // [ level: string, methods: string[] ][]
-const table: [string, string[]][] = [
+const table = [
   [ 'all', [] ],
   [ 'log', [
     'debug',
@@ -35,7 +35,8 @@ const table: [string, string[]][] = [
     'error',
   ]],
   [ 'silent', [] ]
-];
+] as const;
+
 const nostd = [
   // 'memory',
   'exception',
@@ -43,25 +44,30 @@ const nostd = [
   //
   'profile',
   'profileEnd',
-];
+] as const;
+
 const aliases: { [level: string]: string } = {
   debug: 'log',
   fatal: 'error',
   quiet: 'silent',
-};
+} as const;
 
 type LevelNumber = { [key: string]: number };
 type LevelString = { [key: string]: string };
+
 const levelNumber: LevelNumber = {};
 const levelString: LevelString = {};
 const methodLevel: LevelNumber = {};
+
 table.reduce(([ n, s, m ], [ level, methods ], num: number) => {
   n[level] = n[level.toUpperCase()] = n[num] = num;
   s[level] = s[level.toUpperCase()] = s[num] = level;
-  methods.forEach(method => m[method] = num);
+  for (const method of methods) m[method] = num;
   return [ n, s, m ];
 }, [ levelNumber, levelString, methodLevel ]);
+
 const allmethods = [ ...Object.keys(methodLevel), ...nostd ];
+
 for (const k in aliases) {
   const n = levelNumber;
   const s = levelString;
@@ -70,6 +76,7 @@ for (const k in aliases) {
   n[k] = n[u] = n[a];
   s[k] = s[u] = s[a];
 }
+
 const levelNum = (level: string | number) => {
   return levelNumber[level] ?? levelNumber.log;
 }
@@ -92,7 +99,7 @@ export class ConsoleLevel implements ConsoleType {
   static readonly levelString = levelString;
   static readonly methodLevel = methodLevel;
 
-  Console: any = console.Console || ConsoleLevel;
+  Console: ConsoleType['Console'] = console.Console || ConsoleLevel;
 
   get disabled() { return !this.enabled; }
   set disabled(v: boolean) { this.enabled = !v; }
@@ -151,8 +158,8 @@ export class ConsoleLevel implements ConsoleType {
   profile: ConsoleType['profile'] = nop;
   profileEnd: ConsoleType['profileEnd'] = nop;
 
-  constructor(cons: ConsoleType = console, opt?: ConsoleLevelOptions) {
-    this.out = cons;
+  constructor(out: ConsoleType = console, opt?: ConsoleLevelOptions) {
+    this.out = out;
     this.opt = { enabled: true, level: 'log', dynamic: false, ...opt };
     this.init();
     for (const method in this.out) {
