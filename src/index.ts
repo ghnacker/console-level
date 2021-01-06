@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /*!
  * console-level
- * Copyright (c) 2019, 2020 Satoshi Nakagawa
+ * Copyright (c) 2019-2021 Satoshi Nakagawa
  */
 
 // [ level: string, methods: string[] ][]
