@@ -27,15 +27,15 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.1",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.25.0",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^7.27.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.46.0",
+    "rollup": "^2.49.0",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@types/node": "^15.0.1"
+    "@types/node": "^15.6.1"
   }
 }
