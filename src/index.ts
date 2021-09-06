@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /*!
  * console-level
  * Copyright (c) 2019-2021 Satoshi Nakagawa

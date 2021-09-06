@@ -1,9 +1,9 @@
-import typescript from '@rollup/plugin-typescript';
+import ts from 'rollup-plugin-ts';
 import { terser } from 'rollup-plugin-terser';
 
 const terserp = terser({ output: { comments: /^!/ } });
 const plugins = [
-  typescript(),
+  ts(),
   terserp,
 ];
 
@@ -15,10 +15,8 @@ export default [
 	    format: 'esm',
     },
     plugins: [
-      typescript({
-        declaration: true,
-        declarationDir: 'esm',
-        rootDir: 'src'
+      ts({
+        tsconfig: config => ({ ...config, declaration: true }),
       }),
       terserp,
     ],
