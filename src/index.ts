@@ -152,7 +152,8 @@ export class ConsoleLevel implements ConsoleType {
   warn: ConsoleType['warn'] = nop;
 
   get memory() { return this.out.memory; }
-  exception: ConsoleType['exception'] = nop;
+  // exception: ConsoleType['exception'] = nop;
+  exception: any = nop;
   timeStamp: ConsoleType['timeStamp'] = nop;
 
   profile: ConsoleType['profile'] = nop;
