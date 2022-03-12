@@ -1,6 +1,6 @@
 {
   "name": "console-level",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "Simple logLevel extension for console",
   "main": "./cjs/index.js",
   "module": "./esm/index.js",
