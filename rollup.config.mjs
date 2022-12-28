@@ -1,18 +1,17 @@
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 
-const terserp = terser({ output: { comments: /^!/ } });
 const plugins = [
   typescript(),
-  terserp,
+  terser(),
 ];
 
 export default [
   {
     input: 'src/index.ts',
     output: {
-	    dir: 'esm',
-	    format: 'esm',
+      dir: 'esm',
+      format: 'esm',
     },
     plugins: [
       typescript({
@@ -21,14 +20,14 @@ export default [
           declarationDir: 'esm',
         },
       }),
-      terserp,
+      terser(),
     ],
   },
   {
     input: 'src/index.ts',
     output: {
-	    file: 'cjs/index.js',
-	    format: 'cjs',
+      file: 'cjs/index.js',
+      format: 'cjs',
     },
     plugins,
   },
