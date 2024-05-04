@@ -27,12 +27,12 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.5",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "eslint": "^8.57.0",
     "rimraf": "^5.0.5",
-    "rollup": "^4.9.2",
+    "rollup": "^4.17.2",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   }
