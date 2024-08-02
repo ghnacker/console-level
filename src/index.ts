@@ -38,7 +38,7 @@ const table = [
 
 const nostd = [
   // 'memory',
-  'exception',
+  // 'exception',
   'timeStamp',
   //
   'profile',
@@ -92,13 +92,17 @@ interface ConsoleLevelOptions {
 }
 
 type ConsoleType = Console;
+type ConsoleExt = ConsoleType & {
+  [method: string]: unknown
+};
+type InspectorMethod = (label?: string) => void;
 
 export class ConsoleLevel implements ConsoleType {
   static readonly levelNumber = levelNumber;
   static readonly levelString = levelString;
   static readonly methodLevel = methodLevel;
 
-  Console: ConsoleType['Console'] = console.Console || ConsoleLevel;
+  // Console: ConsoleType['Console'] = console.Console || ConsoleLevel;
 
   get disabled() { return !this.enabled; }
   set disabled(v: boolean) { this.enabled = !v; }
@@ -118,12 +122,9 @@ export class ConsoleLevel implements ConsoleType {
   get levelStr() { return levelStr(this.level); }
   get level() { return this.opt.level ?? 'log'; }
   set level(v: string | number) {
-    if (this.levelNum === levelNum(v)) {
-      this.opt.level = v;
-      return;
-    }
+    const n = this.levelNum;
     this.opt.level = v;
-    if (!this.dynamic) this.init();
+    if (n !== levelNum(v) && !this.dynamic) this.init();
   }
 
   in(level: string | number): boolean {
@@ -152,53 +153,58 @@ export class ConsoleLevel implements ConsoleType {
 
   get memory() { return this.out.memory; }
   // exception: ConsoleType['exception'] = nop;
-  exception: any = nop;
+  // exception: any = nop;
   timeStamp: ConsoleType['timeStamp'] = nop;
 
-  profile: ConsoleType['profile'] = nop;
-  profileEnd: ConsoleType['profileEnd'] = nop;
+  // profile: ConsoleType['profile'] = nop;
+  // profileEnd: ConsoleType['profileEnd'] = nop;
+  profile: InspectorMethod = nop;
+  profileEnd: InspectorMethod = nop;
 
   constructor(out: ConsoleType = console, opt?: ConsoleLevelOptions) {
-    this.out = out;
+    this.out = out as ConsoleExt;
     this.opt = { enabled: true, level: 'log', dynamic: false, ...opt };
     this.init();
+    const self = this as unknown as ConsoleExt;
     for (const method in this.out) {
-      if ((this as any)[method]) continue;
+      if (method in this) continue;
       // unknown method
       const fn = this.out[method];
       if (typeof fn === 'function') {
-        (this as any)[method] = (...arg: any[]) => {
+        self[method] = (...args: unknown[]) => {
           if (this.enabled) {
-            this.out[method](...arg);
+            fn.apply(this.out, args);
           }
         };
       }
     }
   }
 
-  private out: any;
+  private out: ConsoleExt;
   private opt: ConsoleLevelOptions;
 
   private init() {
+    const self = this as unknown as ConsoleExt;
     for (const method of allmethods) {
       if (this.dynamic) {
-        (this as any)[method] = (...arg: any[]) => {
+        self[method] = (...args: unknown[]) => {
           if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
             const fn = this.out[method];
-            if (typeof fn === 'function') fn(...arg);
+            if (typeof fn === 'function') fn.apply(this.out, args);
           }
         };
       } else if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
         const fn = this.out[method];
-        (this as any)[method] = typeof fn === 'function' ? fn.bind(this.out) : nop;
+        self[method] = typeof fn === 'function' ? fn.bind(this.out) : nop;
       } else {
-        (this as any)[method] = nop;
+        self[method] = nop;
       }
     }
   }
 
   private static single?: ConsoleLevel;
   static get logger() {
-    return ConsoleLevel.single || (ConsoleLevel.single = new ConsoleLevel());
+    ConsoleLevel.single ||= new ConsoleLevel();
+    return ConsoleLevel.single;
   }
 }
