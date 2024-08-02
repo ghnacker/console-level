@@ -5,35 +5,27 @@
 
 // [ level: string, methods: string[] ][]
 const table = [
-  [ 'all', [] ],
-  [ 'log', [
-    'debug',
-    'dir',
-    'dirxml',
-    'group',
-    'groupCollapsed',
-    'groupEnd',
+  ['all', []],
+  [
     'log',
-    'table',
-    'time',
-    'timeLog',
-    'trace',
-  ]],
-  [ 'info', [
-    'count',
-    'info',
-    'timeEnd',
-  ]],
-  [ 'warn', [
-    'countReset',
-    'warn',
-  ]],
-  [ 'error', [
-    'assert',
-    'clear',
-    'error',
-  ]],
-  [ 'silent', [] ]
+    [
+      'debug',
+      'dir',
+      'dirxml',
+      'group',
+      'groupCollapsed',
+      'groupEnd',
+      'log',
+      'table',
+      'time',
+      'timeLog',
+      'trace',
+    ],
+  ],
+  ['info', ['count', 'info', 'timeEnd']],
+  ['warn', ['countReset', 'warn']],
+  ['error', ['assert', 'clear', 'error']],
+  ['silent', []],
 ] as const;
 
 const nostd = [
@@ -45,27 +37,30 @@ const nostd = [
   'profileEnd',
 ] as const;
 
-const aliases: { [level: string]: string } = {
+const aliases: {[level: string]: string} = {
   debug: 'log',
   fatal: 'error',
   quiet: 'silent',
 } as const;
 
-type LevelNumber = { [key: string]: number };
-type LevelString = { [key: string]: string };
+type LevelNumber = {[key: string]: number};
+type LevelString = {[key: string]: string};
 
 const levelNumber: LevelNumber = {};
 const levelString: LevelString = {};
 const methodLevel: LevelNumber = {};
 
-table.reduce(([ n, s, m ], [ level, methods ], num: number) => {
-  n[level] = n[level.toUpperCase()] = n[num] = num;
-  s[level] = s[level.toUpperCase()] = s[num] = level;
-  for (const method of methods) m[method] = num;
-  return [ n, s, m ];
-}, [ levelNumber, levelString, methodLevel ]);
+table.reduce(
+  ([n, s, m], [level, methods], num: number) => {
+    n[level] = n[level.toUpperCase()] = n[num] = num;
+    s[level] = s[level.toUpperCase()] = s[num] = level;
+    for (const method of methods) m[method] = num;
+    return [n, s, m];
+  },
+  [levelNumber, levelString, methodLevel]
+);
 
-const allmethods = [ ...Object.keys(methodLevel), ...nostd ];
+const allmethods = [...Object.keys(methodLevel), ...nostd];
 
 for (const k in aliases) {
   const n = levelNumber;
@@ -78,10 +73,10 @@ for (const k in aliases) {
 
 const levelNum = (level: string | number) => {
   return levelNumber[level] ?? levelNumber.log;
-}
+};
 const levelStr = (level: string | number) => {
   return levelString[level] ?? levelString.log;
-}
+};
 
 const nop = () => {};
 
@@ -93,7 +88,7 @@ interface ConsoleLevelOptions {
 
 type ConsoleType = Console;
 type ConsoleExt = ConsoleType & {
-  [method: string]: unknown
+  [method: string]: unknown;
 };
 type InspectorMethod = (label?: string) => void;
 
@@ -104,23 +99,37 @@ export class ConsoleLevel implements ConsoleType {
 
   // Console: ConsoleType['Console'] = console.Console || ConsoleLevel;
 
-  get disabled() { return !this.enabled; }
-  set disabled(v: boolean) { this.enabled = !v; }
-  get enabled() { return !!this.opt.enabled; }
+  get disabled() {
+    return !this.enabled;
+  }
+  set disabled(v: boolean) {
+    this.enabled = !v;
+  }
+  get enabled() {
+    return !!this.opt.enabled;
+  }
   set enabled(v: boolean) {
     if (this.enabled === !!v) return;
     this.opt.enabled = !!v;
     if (!this.dynamic) this.init();
   }
-  get dynamic() { return !!this.opt.dynamic; }
+  get dynamic() {
+    return !!this.opt.dynamic;
+  }
   set dynamic(v: boolean) {
     if (this.dynamic === !!v) return;
     this.opt.dynamic = !!v;
     this.init();
   }
-  get levelNum() { return levelNum(this.level); }
-  get levelStr() { return levelStr(this.level); }
-  get level() { return this.opt.level ?? 'log'; }
+  get levelNum() {
+    return levelNum(this.level);
+  }
+  get levelStr() {
+    return levelStr(this.level);
+  }
+  get level() {
+    return this.opt.level ?? 'log';
+  }
   set level(v: string | number) {
     const n = this.levelNum;
     this.opt.level = v;
@@ -151,7 +160,9 @@ export class ConsoleLevel implements ConsoleType {
   trace: ConsoleType['trace'] = nop;
   warn: ConsoleType['warn'] = nop;
 
-  get memory() { return this.out.memory; }
+  get memory() {
+    return this.out.memory;
+  }
   // exception: ConsoleType['exception'] = nop;
   // exception: any = nop;
   timeStamp: ConsoleType['timeStamp'] = nop;
@@ -163,7 +174,7 @@ export class ConsoleLevel implements ConsoleType {
 
   constructor(out: ConsoleType = console, opt?: ConsoleLevelOptions) {
     this.out = out as ConsoleExt;
-    this.opt = { enabled: true, level: 'log', dynamic: false, ...opt };
+    this.opt = {enabled: true, level: 'log', dynamic: false, ...opt};
     this.init();
     const self = this as unknown as ConsoleExt;
     for (const method in this.out) {
@@ -188,12 +199,18 @@ export class ConsoleLevel implements ConsoleType {
     for (const method of allmethods) {
       if (this.dynamic) {
         self[method] = (...args: unknown[]) => {
-          if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
+          if (
+            this.enabled &&
+            this.levelNum <= (methodLevel[method] ?? levelNumber.error)
+          ) {
             const fn = this.out[method];
             if (typeof fn === 'function') fn.apply(this.out, args);
           }
         };
-      } else if (this.enabled && this.levelNum <= (methodLevel[method] ?? levelNumber.error)) {
+      } else if (
+        this.enabled &&
+        this.levelNum <= (methodLevel[method] ?? levelNumber.error)
+      ) {
         const fn = this.out[method];
         self[method] = typeof fn === 'function' ? fn.bind(this.out) : nop;
       } else {
