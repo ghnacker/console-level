@@ -34,6 +34,6 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.19.2",
     "tslib": "^2.6.3",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.4"
   }
 }
