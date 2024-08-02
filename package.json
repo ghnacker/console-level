@@ -2,13 +2,14 @@
   "name": "console-level",
   "version": "0.4.21",
   "description": "Simple logLevel extension for console",
-  "main": "./cjs/index.js",
-  "module": "./esm/index.js",
-  "types": "./esm/index.d.ts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist/"],
   "scripts": {
     "build": "rollup --silent -c",
     "prepack": "npm run build",
-    "clean": "rimraf cjs esm umd",
+    "clean": "rimraf dist",
     "lint": "tsc --noEmit && eslint src --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

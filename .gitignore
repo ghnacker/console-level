@@ -10,9 +10,7 @@ node_modules/
 *.tgz
 
 # artifacts
-cjs/
-esm/
-umd/
+dist/
 
 # ...
 *~

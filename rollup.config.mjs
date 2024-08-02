@@ -10,34 +10,17 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      dir: 'esm',
-      format: 'esm',
+      dir: 'dist',
+      format: 'es',
     },
     plugins: [
       typescript({
         compilerOptions: {
           declaration: true,
-          declarationDir: 'esm',
+          declarationDir: 'dist',
         },
       }),
       terser(),
     ],
-  },
-  {
-    input: 'src/index.ts',
-    output: {
-      file: 'cjs/index.js',
-      format: 'cjs',
-    },
-    plugins,
-  },
-  {
-    input: 'src/default.js',
-    output: {
-      file: 'umd/index.js',
-      format: 'umd',
-      name: 'ConsoleLevel'
-    },
-    plugins,
   },
 ];

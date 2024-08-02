@@ -1,6 +1,6 @@
 /*!
  * console-level
- * Copyright (c) 2019-2021 Satoshi Nakagawa
+ * Copyright (c) 2019-2024 Satoshi Nakagawa
  */
 
 // [ level: string, methods: string[] ][]
@@ -208,3 +208,5 @@ export class ConsoleLevel implements ConsoleType {
     return ConsoleLevel.single;
   }
 }
+
+export default ConsoleLevel;
