@@ -24,10 +24,7 @@
     "console",
     "logLevel"
   ],
-  "author": {
-    "name": "Satoshi Nakagawa",
-    "email": "ghnacker@gmail.com"
-  },
+  "author": "Satoshi Nakagawa <ghnacker@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
