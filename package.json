@@ -27,7 +27,7 @@
   "author": "Satoshi Nakagawa <ghnacker@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.2.4",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.4",
     "eslint": "^9.35.0",

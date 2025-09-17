@@ -1,6 +1,6 @@
 {
   "files": {
-    "ignore": ["node_modules/", "dist/"]
+    "includes": ["**", "!**/node_modules/", "!**/dist/"]
   },
   "formatter": {
     "enabled": true,
@@ -9,7 +9,7 @@
     "indentWidth": 2,
     "lineWidth": 80,
     "lineEnding": "lf",
-    "ignore": ["package*.json", "**/*.d.ts"]
+    "includes": ["**", "!**/package*.json", "!**/*.d.ts"]
   },
   "javascript": {
     "formatter": {
